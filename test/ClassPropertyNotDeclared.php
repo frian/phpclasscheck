@@ -5,11 +5,11 @@ class ClassPropertyNotDeclared
 	
 	protected $that;
 	
-	function doThis() {
+	public function doThis() {
 		$this->this = 0;
 	}
 
-	function doThat() {
+	public function doThat() {
 		$this->that = 0;
 	}	
 }

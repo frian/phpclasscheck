@@ -3,41 +3,75 @@
 use strict;
 use warnings;
 
-my $help = <<END;
+use Getopt::Std;
 
-  usage : $0 [-c|-l] [-m|-p] [-v] file
+#
+# -- Variables ----------------------------------------------------------------
+#
+
+# -- help message
+my $help = qq~
+  usage : $0 [-c|-l] [-m|-p] [-v] file or folder
 
       -c    check
       -l    list (default)
       -m    methods only
       -p    properties only
-      -v    verbose
+      -v    verbose\n
+~;
 
-END
+# -- file or folder name from command line
+my $inputString = '';
 
-unless ( @ARGV ) { die $help }
-
-use Getopt::Std;
-getopts('lcmpv');
-our ( $opt_l , $opt_c , $opt_m, $opt_p, $opt_v );
-
-my @FILES;
-
-my $inputFile = $ARGV[0];
+# -- if folder, store name
 my $folder = undef;
 
-my $fileNotFound = <<END;
+# -- error message
+my $fileNotFound = qq~
+  file or folder $inputString not found\n
+~;
 
-  file or folder $inputFile not found
+# -- list of files to check
+my @FILES;
 
-END
-  
-if ( -f $inputFile ) {
-  push( @FILES, $inputFile );
+# -- name of the class
+my $class = '';
+
+
+my $cnt = 0;
+my $err_cnt = 0;
+
+
+
+#
+# -- start work ---------------------------------------------------------------
+#
+
+# -- parse command line options 
+# -- die on error
+unless ( getopts('lcmpv') ) { die $help };
+our ( $opt_l , $opt_c , $opt_m, $opt_p, $opt_v );
+
+
+# -- check if we have file/folder name
+# -- die on error
+unless ( @ARGV ) { die $help }
+
+
+# -- store file/folder name
+$inputString = $ARGV[0];
+
+
+# -- checks on file/folder name
+# -- if file :   push @FILES
+# -- if folder : search files
+# -- die on error
+if ( -f $inputString ) {
+  push( @FILES, $inputString );
 }
-elsif ( -d $inputFile ) {
+elsif ( -d $inputString ) {
 
-  $folder = $inputFile;
+  $folder = $inputString;
   $folder =~ s|/$||;
   @FILES = find_files($folder);
 }
@@ -46,14 +80,61 @@ else {
 }
 
 
-my $cnt = 0;
-my $err_cnt = 0;
+# -- set -c as default
+if ((!$opt_c) and (!$opt_l)) {
+  $opt_l = 1;
+}
+# -- set -mp as default
+if ((!$opt_m) and !($opt_p)) {
+  $opt_m = $opt_p = 1;
+}
 
-# my @files;
+# -- ready
 
+
+foreach my $file (@FILES) {
+
+  print "\nchecking file $file\n" if ($opt_v);
+
+  open FILE , '<' , $file or die $fileNotFound;
+  my @files = <FILE>;
+  close FILE;
+
+  foreach (@files) {
+    if ( /^((abstract\s+)?class(\s+\w+)*)/ ) {
+      $class = $1;
+      last;
+    } 
+  }
+  
+  if ( $opt_l ) {
+    list_methods(@files) if ( $opt_m );
+    list_properties(@files) if ( $opt_p );
+  }
+  if ( $opt_c ) {
+    if ( $opt_m ) {
+      check_method_parameters_declaration(@files);
+      show_errors($err_cnt);
+      $err_cnt = 0;
+    }
+
+    if ( $opt_p ) {
+      check_properties_declaration(@files);
+      show_errors($err_cnt);
+      $err_cnt = 0;
+    }
+  }
+}
+#
+# -- end work -----------------------------------------------------------------
+#
 
 #
-# -- list methods -------------------------------------------------------------
+# -- Functions ----------------------------------------------------------------
+#
+
+#
+# -- list methods
 #
   
 sub list_methods {
@@ -107,7 +188,7 @@ sub list_methods {
 
 
 #
-# -- list properties ----------------------------------------------------------
+# -- list properties
 #
 sub list_properties {
 
@@ -137,9 +218,8 @@ sub list_properties {
 }
 
 #
-# -- check method parameters declarations -------------------------------------
+# -- check method parameters declarations
 #
-my $class = '';
 
 sub check_method_parameters_declaration {
 
@@ -199,7 +279,7 @@ sub check_method_parameters_declaration {
 
 
 #
-# -- check properties declarations --------------------------------------------
+# -- check properties declarations
 #
 sub check_properties_declaration {
 
@@ -249,70 +329,6 @@ sub check_properties_declaration {
   }
 }
 
-my $ARGS = '';
-
-if ((!$opt_c) and (!$opt_l)) {
-  $ARGS .= 'l';
-}
-
-if ((!$opt_m) and !($opt_p)) {
-  $ARGS .= 'pm';
-}
-
-if ( $opt_l ) {
-  $ARGS .= 'l';
-}
-if ( $opt_c ) {
-  $ARGS .= 'c';
-}
-if ( $opt_m ) {
-  $ARGS .= 'm';
-}
-if ( $opt_p ) {
-  $ARGS .= 'p';
-}
-
-
-  
-foreach my $file (@FILES) {
-
-  print "\nchecking file $file\n" if ($opt_v);
-
-  open FILE , '<' , $file or die $fileNotFound;
-  my @files = <FILE>;
-  close FILE;
-
-  foreach (@files) {
-    if ( /^((abstract\s+)?class(\s+\w+)*)/ ) {
-      $class = $1;
-      last;
-    }
-    
-  }
-  
-  if ( $ARGS =~ 'l' ) {
-    if ( $ARGS =~ 'm' ) {
-
-      list_methods(@files);
-    }
-    if ( $ARGS =~ 'p' ) {
-      list_properties(@files);
-    }
-  }
-  if ( $ARGS =~ 'c' ) {
-    if ( $ARGS =~ 'm' ) {
-      check_method_parameters_declaration(@files);
-      show_errors($err_cnt);
-      $err_cnt = 0;
-    }
-
-    if ( $ARGS =~ 'p' ) {
-      check_properties_declaration(@files);
-      show_errors($err_cnt);
-    }
-  }
-}
-
 
 sub show_errors {
   if ($err_cnt) {
@@ -335,7 +351,7 @@ sub find_files {
   my @FILES;
   foreach my $folder ( @FOLDERS ) {
     
-    $folder .= "/";
+    $folder .= '/';
     
     opendir ( DRIVE , $folder ) || print  "\n\n      ! $folder : Access denied " ;
     @ITEMS= grep ( !/^\.\.?$/ , readdir DRIVE) ;
@@ -346,8 +362,7 @@ sub find_files {
       if (-d $_) {                       
         push ( @FOLDERS , $_);
       }
-      elsif (( -f ) and ( /\.php/ )) {
-#         print "$_\n";
+      elsif (( -f ) and ( /\.php$/ )) {
         push ( @FILES , $_);
       }
     }
