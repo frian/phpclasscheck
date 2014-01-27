@@ -94,7 +94,7 @@ if ((!$opt_m) and !($opt_p)) {
 
 foreach my $file (@FILES) {
 
-  print "\nchecking file $file\n" if ($opt_v);
+#  print "checking file $file\n" if ($opt_v);
 
   open FILE , '<' , $file or die $fileNotFound;
   my @files = <FILE>;
@@ -108,8 +108,8 @@ foreach my $file (@FILES) {
   }
   
   if ( $opt_l ) {
-    list_methods(@files) if ( $opt_m );
-    list_properties(@files) if ( $opt_p );
+    list_methods($file, @files) if ( $opt_m );
+    list_properties($file, @files) if ( $opt_p );
   }
   if ( $opt_c ) {
     if ( $opt_m ) {
@@ -139,17 +139,19 @@ foreach my $file (@FILES) {
   
 sub list_methods {
 
+  my $file = shift;
   my @file = @_;
 
   my %results;
   my $lineCount = 0;
   
-  print "Listing methods\n";
+  print "Listing methods in $class";
+#  print " found in file $file " if ($opt_v);
+  print "\n";
+
   my $hasAbstract = 0;
   
   foreach (@file) {
-
-  my $abstract = '';
 
     $lineCount++;
     chomp;
@@ -162,11 +164,9 @@ sub list_methods {
 
       my @buffer = split( /\s+/ , $_ );
       if ( $buffer[0] eq 'abstract') {
-        $abstract = 'abstract';
         shift @buffer;
         $hasAbstract = 1 if (!$hasAbstract);
       }
-      $results{$lineCount}{'abstract'} = $abstract;
       
       my $access = shift @buffer;
       my $function = join( ' ' , @buffer);
@@ -176,14 +176,19 @@ sub list_methods {
     }
   }
 
-  foreach ( sort { $a <=> $b }keys %results ) {    
-    if ( $hasAbstract ) {
-      printf " %-4s %-8s %-9s %s\n", $_, $results{$_}{'abstract'}, $results{$_}{'access'}, $results{$_}{'function'};
-    }
-    else {
-      printf "%-4s %-9s %s\n", $_, $results{$_}{'access'}, $results{$_}{'function'};
-    }
+  
+  my $abstract = '';
+  $abstract = 'abstract' if ( $hasAbstract );
+
+  foreach ( sort { $a <=> $b }keys %results ) {
+    
+    printf "  %-8s %-9s %-50s", $abstract, $results{$_}{'access'}, $results{$_}{'function'};
+    
+    print " on line " , $_ if ($opt_v);
+    print "\n";
   }
+  
+  
 }
 
 
@@ -192,9 +197,12 @@ sub list_methods {
 #
 sub list_properties {
 
+  my $file = shift;
   my @file = @_;
 
-  print "Listing properties used\n";
+  print "Listing properties in $class";
+  print " found in file $file " if ($opt_v);
+  print "\n";
 
   my $lineCount = 0;
   my %propertyList;
@@ -207,13 +215,19 @@ sub list_properties {
   }
 
   foreach my $param ( sort { $propertyList{$a}{ 'count' } <=> $propertyList{$b}{ 'count' } } keys %propertyList ) {
-    printf "  %-20s used on line ", $param;
-    my $lines = '';
-    foreach ( @{$propertyList{$param}{'line'}} ) {
-      $lines .= "$_, ";
+
+    printf "  %-26s  ", $param;
+
+    if ($opt_v) {
+      print "used on line ";
+	  my $lines = '';
+	  foreach ( @{$propertyList{$param}{'line'}} ) {
+	    $lines .= "$_, ";
+	  }
+	  $lines =~ s/,\s$//;
+	  print "$lines";
     }
-    $lines =~ s/,\s$//;
-    print "$lines\n";
+    print "\n";
   }
 }
 
