@@ -113,13 +113,13 @@ foreach my $file (@FILES) {
   }
   if ( $opt_c ) {
     if ( $opt_m ) {
-      check_method_parameters_declaration(@files);
+      check_method_parameters_declaration($file, @files);
       show_errors($err_cnt);
       $err_cnt = 0;
     }
 
     if ( $opt_p ) {
-      check_properties_declaration(@files);
+      check_properties_declaration($file, @files);
       show_errors($err_cnt);
       $err_cnt = 0;
     }
@@ -237,9 +237,14 @@ sub list_properties {
 
 sub check_method_parameters_declaration {
 
+  my $file = shift;
   my @file = @_;
 
-  print "  $class Checking method parameters declarations ... ";
+  print "Checking method parameters declarations in $class";
+  print " found in file $file " if ($opt_v);
+#  print "\n";
+  
+#  print "  $class Checking method parameters declarations ... ";
 
   my $lineCount = 0;
   my %parameterList;
@@ -256,13 +261,13 @@ sub check_method_parameters_declaration {
       }
     }
   }
-  unless (%parameterList) {
-    print "  no parameter found\n";
-  }
+#  unless (%parameterList) {
+#    print "  no parameter found\n";
+#  }
 
 
   foreach my $param ( sort { $parameterList{$a}{ 'count' } <=> $parameterList{$b}{ 'count' } } keys %parameterList ) {
-    my $output = sprintf "\n    found parameter %-15s", $param;
+    my $output = sprintf "\n  found parameter %-15s", $param;
     $param =~ s/\$//;
 
     my $lineCount = 0;
@@ -297,9 +302,11 @@ sub check_method_parameters_declaration {
 #
 sub check_properties_declaration {
 
+  my $file = shift;
   my @file = @_;
 
-  print "  Checking properties declarations\n";
+  print "Checking properties declarations in $class";
+  print " found in file $file " if ($opt_v);
 
   my $lineCount = 0;
   my %propertyList;
@@ -311,20 +318,21 @@ sub check_properties_declaration {
         push( @{$propertyList{$1}{'line'}}, $lineCount );
     }
   }
-  unless (%propertyList) {
-    print "  no parameter found\n";
-  }  
+#  unless (%propertyList) {
+#    print "  no parameter found\n";
+#  }  
 
 
   foreach my $param ( sort { $propertyList{$a}{ 'count' } <=> $propertyList{$b}{ 'count' } } keys %propertyList ) {
-    my $output = sprintf "    found property %-15s", $param;
+
+    my $output = sprintf "\n  found property %-15s", $param;
 
     my $lineCount = 0;
     my $found = 0;
     foreach (@file) {
       $lineCount++;
       if ( /((public|protected|private)\s+\$$param)/ ) {
-        printf "$output  declared as %-30s on line %s\n", $1, $lineCount if ($opt_v);
+        printf "$output declared as %-30s on line %s", $1, $lineCount if ($opt_v);
         $found = 1;
         last;
       }
@@ -332,15 +340,16 @@ sub check_properties_declaration {
 
     if (!$found) {
       $err_cnt++;
-      print "$output  NOT DECLARED, used on line ";  
+      print "$output NOT DECLARED, used on line ";  
       my $lines = '';
       foreach ( @{$propertyList{$param}{'line'}} ) {
         $lines .= "$_, ";
       }
       $lines =~ s/,\s$//;
-      print "$lines\n";
+      print "$lines";
     }
   }
+  print "\n" if (( $err_cnt > 0 ) or ( $opt_v )) ;
 }
 
 
@@ -351,7 +360,7 @@ sub show_errors {
     print "\n";
   }
   else {
-    print "\\o/\n";
+    print " \\o/\n";
   }
 }
 
