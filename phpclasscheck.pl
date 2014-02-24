@@ -62,8 +62,9 @@ my $cnt = 0;
 my $err_cnt = 0;
 
 # -- regexps
+my $class_regexp = qr/^((abstract\s+)?class(\s+\w+)*)/;
 my $property_regexp = qr/\bthis->(\w+)\b((?!\().)/;
-
+my $method_regexp = qr/((abstract)?(\s+p\w+\s+)?function\s+\w+\(.*)/;
 
 #
 # -- start work ---------------------------------------------------------------
@@ -123,7 +124,7 @@ foreach my $file (@FILES) {
   close FILE;
 
   foreach (@files) {
-    if ( /^((abstract\s+)?class(\s+\w+)*)/ ) {
+    if ( $_ =~ $class_regexp ) {
       $class = $1;
       last;
     } 
@@ -178,7 +179,7 @@ sub list_methods {
     $lineCount++;
     chomp;
     
-    if ( /((abstract)?(\s+p\w+\s+)?function\s+\w+\(.*)/ ) {
+    if ( $_ =~ $method_regexp ) {
       # remove leading spaces
       $_ =~ s/^\s+//;
       # remove end of line
