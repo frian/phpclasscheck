@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# 27/01/2014
+# 24/02/2014
 #
 # phpclasscheck.pl - simple php class checker
 # Copyright (C) 2014 frian <info@frian.org> 
@@ -167,18 +167,18 @@ sub list_methods {
 
   my %results;
   my $lineCount = 0;
-  
+
   print "Listing methods in $class";
 #  print " found in file $file " if ($opt_v);
   print "\n";
 
   my $hasAbstract = 0;
-  
+
   foreach (@file) {
 
     $lineCount++;
     chomp;
-    
+
     if ( $_ =~ $method_regexp ) {
       # remove leading spaces
       $_ =~ s/^\s+//;
@@ -191,24 +191,21 @@ sub list_methods {
         shift @buffer;
         $results{$lineCount}{'abstract'} = 'abstract';
       }
-      
+
       my $access = shift @buffer;
       my $function = join( ' ' , @buffer);
-      
+
       $results{$lineCount}{'access'} = $access;
       $results{$lineCount}{'function'} = $function;
     }
   }
 
-
   foreach ( sort { $a <=> $b }keys %results ) {
    
     printf "  %-8s %-9s %-50s", $results{$_}{'abstract'}, $results{$_}{'access'}, $results{$_}{'function'};
-
     print " on line " , $_ if ($opt_v);
     print "\n";
   }
-
 }
 
 
@@ -251,10 +248,10 @@ sub list_properties {
   }
 }
 
+
 #
 # -- check method parameters declarations
 #
-
 sub check_method_parameters_declaration {
 
   my $file = shift;
@@ -263,7 +260,7 @@ sub check_method_parameters_declaration {
   print "Checking method parameters declarations in $class";
   print " found in file $file " if ($opt_v);
 #  print "\n";
-  
+
 #  print "  $class Checking method parameters declarations ... ";
 
   my $lineCount = 0;
@@ -271,13 +268,10 @@ sub check_method_parameters_declaration {
   foreach my $line (@file) {
     $lineCount++;
     if ( $line =~ /p\w+\s+function/ ) {
-
       my @list = $line =~ /(\$\w+)/g;
       foreach my $item (@list) {
-
         $parameterList{$item}{ 'count' } = $cnt++ if ( ! $parameterList{$item} );
         push( @{$parameterList{$item}{'line'}}, $lineCount );
-        
       }
     }
   }
@@ -333,7 +327,6 @@ sub check_properties_declaration {
   foreach my $line (@file) {
     $lineCount++;
     if ( $line =~ $property_regexp ) {
-
         $propertyList{$1}{ 'count' } = $cnt++ if ( ! $propertyList{$1} );
         push( @{$propertyList{$1}{'line'}}, $lineCount );
     }
@@ -393,9 +386,9 @@ sub find_files {
   my @ITEMS;
   my @FILES;
   foreach my $folder ( @FOLDERS ) {
-    
+
     $folder .= '/';
-    
+
     opendir ( DRIVE , $folder ) || print  "\n\n      ! $folder : Access denied " ;
     @ITEMS= grep ( !/^\.\.?$/ , readdir DRIVE) ;
     closedir(DRIVE);
@@ -410,5 +403,5 @@ sub find_files {
       }
     }
   }
-  return @FILES;
+  return @FILES;  
 }
