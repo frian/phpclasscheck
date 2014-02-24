@@ -1,7 +1,7 @@
 phpclasstest.pl
 ===============
 
-A perl script that check for undeclared method parameters and properties in PHP classes
+A perl script that checks if method parameters and properties are declared in PHP classes.
 
 what it does
 ------------
