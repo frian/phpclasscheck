@@ -57,10 +57,12 @@ my @FILES;
 # -- name of the class
 my $class = '';
 
-
+# -- counters
 my $cnt = 0;
 my $err_cnt = 0;
 
+# -- regexps
+my $property_regexp = qr/\bthis->(\w+)\b((?!\().)/;
 
 
 #
@@ -207,8 +209,7 @@ sub list_methods {
     print " on line " , $_ if ($opt_v);
     print "\n";
   }
-  
-  
+
 }
 
 
@@ -228,7 +229,7 @@ sub list_properties {
   my %propertyList;
   foreach my $line (@file) {
     $lineCount++;
-    if ( $line =~ /this->(\w+)(?!(.*)[(])/ ) {
+    if ( $line =~ $property_regexp ) {
         $propertyList{$1}{ 'count' } = $cnt++ if ( ! $propertyList{$1} );
         push( @{$propertyList{$1}{'line'}}, $lineCount );
     }
@@ -332,7 +333,7 @@ sub check_properties_declaration {
   my %propertyList;
   foreach my $line (@file) {
     $lineCount++;
-    if ( $line =~ /this->(\w+)(?!(.*)[(])/ ) {
+    if ( $line =~ $property_regexp ) {
 
         $propertyList{$1}{ 'count' } = $cnt++ if ( ! $propertyList{$1} );
         push( @{$propertyList{$1}{'line'}}, $lineCount );
