@@ -185,9 +185,10 @@ sub list_methods {
       $_ =~ s/[{;]//g;
 
       my @buffer = split( /\s+/ , $_ );
+      $results{$lineCount}{'abstract'} = '';
       if ( $buffer[0] eq 'abstract') {
         shift @buffer;
-        $hasAbstract = 1 if (!$hasAbstract);
+        $results{$lineCount}{'abstract'} = 'abstract';
       }
       
       my $access = shift @buffer;
@@ -198,14 +199,11 @@ sub list_methods {
     }
   }
 
-  
-  my $abstract = '';
-  $abstract = 'abstract' if ( $hasAbstract );
 
   foreach ( sort { $a <=> $b }keys %results ) {
-    
-    printf "  %-8s %-9s %-50s", $abstract, $results{$_}{'access'}, $results{$_}{'function'};
-    
+   
+    printf "  %-8s %-9s %-50s", $results{$_}{'abstract'}, $results{$_}{'access'}, $results{$_}{'function'};
+
     print " on line " , $_ if ($opt_v);
     print "\n";
   }
