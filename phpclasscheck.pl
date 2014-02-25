@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# 24/02/2014
+# 25/02/2014
 #
 # phpclasscheck.pl - simple php class checker
 # Copyright (C) 2014 frian <info@frian.org> 
@@ -295,7 +295,7 @@ sub check_method_parameters_declaration {
     foreach (@file) {
       $lineCount++;
       if ( /(public|protected|private)\s+\$$param/ ) {
-        printf "$output declared as %-15s on line %s", $param, $lineCount if ($opt_v);
+        printf "$output declared as %-30s on line %s", $param, $lineCount if ($opt_v);
         $found = 1;
         last;
       }
@@ -379,7 +379,7 @@ sub show_errors {
     print "\n";
   }
   else {
-    print " \\o/\n";
+    print " \\o/\n" if ( ! $opt_v );
   }
 }
 
