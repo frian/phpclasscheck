@@ -189,6 +189,7 @@ sub list_methods {
       $results{$lineCount}{'abstract'} = '';
       if ( $buffer[0] eq 'abstract') {
         shift @buffer;
+        $hasAbstract = 1;
         $results{$lineCount}{'abstract'} = 'abstract';
       }
 
@@ -201,8 +202,13 @@ sub list_methods {
   }
 
   foreach ( sort { $a <=> $b }keys %results ) {
-   
-    printf "  %-8s %-9s %-50s", $results{$_}{'abstract'}, $results{$_}{'access'}, $results{$_}{'function'};
+    
+    if ( $hasAbstract ) {
+      printf "  %-8s %-9s %-50s", $results{$_}{'abstract'}, $results{$_}{'access'}, $results{$_}{'function'};
+    }
+    else {
+      printf "  %-9s %-50s", $results{$_}{'access'}, $results{$_}{'function'};
+    }
     print " on line " , $_ if ($opt_v);
     print "\n";
   }

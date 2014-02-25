@@ -3,17 +3,20 @@
 class ClassPropertyNotDeclared 
 {
 	
-	protected $that;
+  private $param;
+
+  protected $that;
+	protected $thisandthat;
 	
-	public function doThis() {
+	public function doThis($param) {
 		$this->this = 0;
 	}
 
-	public function doThat() {
+	public function doThat($param) {
 		$this->that = 0;
 	}
 
-	public function doThat() {
-	  $this->tha = 0;
+	public function doThisAndThat($param) {
+	  $this->thisandthat = 0;
 	}
 }
