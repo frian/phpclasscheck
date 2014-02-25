@@ -344,7 +344,7 @@ sub check_properties_declaration {
     my $found = 0;
     foreach (@file) {
       $lineCount++;
-      if ( /((public|protected|private)\s+\$$param)/ ) {
+      if ( /(\b(public|protected|private)\s+\$$param\b)/ ) {
         printf "$output declared as %-30s on line %s", $1, $lineCount if ($opt_v);
         $found = 1;
         last;

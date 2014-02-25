@@ -11,5 +11,9 @@ class ClassPropertyNotDeclared
 
 	public function doThat() {
 		$this->that = 0;
-	}	
+	}
+
+	public function doThat() {
+	  $this->tha = 0;
+	}
 }
