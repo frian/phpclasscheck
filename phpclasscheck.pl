@@ -117,8 +117,6 @@ if ((!$opt_m) and !($opt_p)) {
 
 foreach my $file (@FILES) {
 
-#  print "checking file $file\n" if ($opt_v);
-
   open FILE , '<' , $file or die $fileNotFound;
   my @files = <FILE>;
   close FILE;
@@ -168,7 +166,7 @@ sub list_methods {
   my %results;
   my $lineCount = 0;
 
-  print "Listing methods in $class";
+  print "$class (methods)";
 #  print " found in file $file " if ($opt_v);
   print "\n";
 
@@ -223,8 +221,8 @@ sub list_properties {
   my $file = shift;
   my @file = @_;
 
-  print "Listing properties in $class";
-  print " found in file $file " if ($opt_v);
+  print "$class (properties)";
+#  print " found in file $file " if ($opt_v);
   print "\n";
 
   my $lineCount = 0;
@@ -263,8 +261,8 @@ sub check_method_parameters_declaration {
   my $file = shift;
   my @file = @_;
 
-  print "Checking method parameters declarations in $class";
-  print " found in file $file " if ($opt_v);
+  print "$class (methods)";
+#  print " found in file $file " if ($opt_v);
 #  print "\n";
 
 #  print "  $class Checking method parameters declarations ... ";
@@ -325,8 +323,8 @@ sub check_properties_declaration {
   my $file = shift;
   my @file = @_;
 
-  print "Checking properties declarations in $class";
-  print " found in file $file " if ($opt_v);
+  print "$class (properties)";
+#  print " found in file $file " if ($opt_v);
 
   my $lineCount = 0;
   my %propertyList;
@@ -344,7 +342,7 @@ sub check_properties_declaration {
 
   foreach my $param ( sort { $propertyList{$a}{ 'count' } <=> $propertyList{$b}{ 'count' } } keys %propertyList ) {
 
-    my $output = sprintf "\n  found property %-15s", $param;
+    my $output = sprintf "\n  found property %-16s", $param;
 
     my $lineCount = 0;
     my $found = 0;
@@ -379,7 +377,8 @@ sub show_errors {
     print "\n";
   }
   else {
-    print " \\o/\n" if ( ! $opt_v );
+    print " \\o/" if ( !$opt_v );
+    print "\n";
   }
 }
 
