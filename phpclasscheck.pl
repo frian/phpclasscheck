@@ -285,7 +285,7 @@ sub check_method_parameters_declaration {
 
 
   foreach my $param ( sort { $parameterList{$a}{ 'count' } <=> $parameterList{$b}{ 'count' } } keys %parameterList ) {
-    my $output = sprintf "\n  found parameter %-15s", $param;
+    my $output = sprintf "\n  parameter %-15s", $param;
     $param =~ s/\$//;
 
     my $lineCount = 0;
@@ -311,7 +311,7 @@ sub check_method_parameters_declaration {
     }
   }
 #   print "debug : \$err_cnt -> $err_cnt\n";
-  print "\n" if (( $err_cnt > 0 ) or ( $opt_v )) ;
+  print "\n" if ( $err_cnt > 0 );
 }
 
 
@@ -342,7 +342,7 @@ sub check_properties_declaration {
 
   foreach my $param ( sort { $propertyList{$a}{ 'count' } <=> $propertyList{$b}{ 'count' } } keys %propertyList ) {
 
-    my $output = sprintf "\n  found property %-16s", $param;
+    my $output = sprintf "\n  property %-16s", $param;
 
     my $lineCount = 0;
     my $found = 0;
@@ -366,7 +366,7 @@ sub check_properties_declaration {
       print "$lines";
     }
   }
-  print "\n" if (( $err_cnt > 0 ) or ( $opt_v )) ;
+  print "\n" if ( $err_cnt > 0 ) ;
 }
 
 
